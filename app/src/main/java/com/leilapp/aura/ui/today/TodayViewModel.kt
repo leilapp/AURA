@@ -47,6 +47,9 @@ data class TodayState(
     val paymentsDue: List<PaymentEntity> = emptyList(),
     val weather: WeatherSnapshot? = null,
     val showNotificationsIntro: Boolean = false,
+    /** Progreso del día (solo lectura, para el indicador del encabezado). */
+    val doneToday: Int = 0,
+    val plannedToday: Int = 0,
 )
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -110,6 +113,10 @@ class TodayViewModel(
         val slots = events.filter { !it.completed }.mapNotNull { slotOf(it.id, it.title, it.epochDay, it.startMinutes, it.endMinutes) }
             .filter { it.epochDay == todayDay }
 
+        // Progreso visual: eventos de hoy + tareas que vencen hoy + rutinas de hoy.
+        val eventsOfDay = events.filter { it.epochDay == todayDay }
+        val tasksOfDay = tasks.filter { it.dueEpochDay == todayDay }
+
         TodayState(
             loading = false,
             now = now,
@@ -124,6 +131,8 @@ class TodayViewModel(
             paymentsDue = payments.filter { !it.paid && it.dueEpochDay <= todayDay + 7 },
             weather = weather,
             showNotificationsIntro = !prefs.notificationsIntroSeen,
+            doneToday = eventsOfDay.count { it.completed } + tasksOfDay.count { it.completed } + routines.count { it.done },
+            plannedToday = eventsOfDay.size + tasksOfDay.size + routines.size,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TodayState())
 
