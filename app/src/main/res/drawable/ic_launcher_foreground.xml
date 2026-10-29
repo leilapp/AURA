@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Halo -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FF7C5CE0"
+        android:strokeWidth="3"
+        android:pathData="M54,30a24,24 0,1 1,0 48a24,24 0,1 1,0 -48z" />
+    <!-- Letra A estilizada -->
+    <path
+        android:fillColor="#FFD9CCFF"
+        android:pathData="M54,38 L66,70 L60.5,70 L57.8,62.5 L50.2,62.5 L47.5,70 L42,70 Z M54,48.5 L51.8,57.8 L56.2,57.8 Z" />
+</vector>

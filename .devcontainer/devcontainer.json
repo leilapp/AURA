@@ -1,0 +1,18 @@
+{
+  "name": "Aura (Android sin Android Studio)",
+  "image": "mcr.microsoft.com/devcontainers/java:1-17-bookworm",
+  "containerEnv": {
+    "ANDROID_HOME": "/home/vscode/android-sdk",
+    "ANDROID_SDK_ROOT": "/home/vscode/android-sdk"
+  },
+  "postCreateCommand": "bash scripts/setup-android-sdk.sh",
+  "hostRequirements": {
+    "cpus": 2,
+    "memory": "8gb"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": ["vscjava.vscode-gradle"]
+    }
+  }
+}
