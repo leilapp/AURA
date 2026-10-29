@@ -9,6 +9,15 @@ las actividades y compromisos de tu hijo. Funciona sin cuenta, sin servidor y si
 
 ## 1. Obtener el APK sin instalar nada (recomendado)
 
+**Enlace directo (ábrelo en el navegador del teléfono):**
+https://github.com/leilapp/AURA/releases/download/apk-latest/Aura.apk
+
+Es un `.apk` listo para instalar, sin zip y sin iniciar sesión en GitHub. Se actualiza solo
+cada vez que cambia `main`. También aparece en la sección **Releases** del repositorio.
+
+### Alternativa: artefacto de GitHub Actions
+
+
 Cada vez que se sube código a `main` o se actualiza un pull request, el flujo **«Compilar APK de Aura»** (GitHub Actions)
 ejecuta las pruebas y genera el APK de depuración en los servidores de GitHub.
 
@@ -22,8 +31,9 @@ Los APK se conservan 14 días para no ocupar espacio.
 
 ## 2. Instalar el APK en tu teléfono
 
-1. Pasa `app-debug.apk` al teléfono (descárgalo directamente desde GitHub en el navegador del
-   teléfono, o envíatelo por correo / Drive / cable).
+1. Descarga `Aura.apk` con el enlace directo de arriba desde el navegador del teléfono
+   (o pasa el `app-debug.apk` del artefacto por correo, Drive o cable). Los artefactos de Actions
+   solo se descargan con sesión iniciada en GitHub y vienen en `.zip`: hay que extraerlos antes.
 2. Ábrelo desde la app **Archivos** o la notificación de descarga.
 3. Android pedirá permitir «Instalar apps desconocidas» para esa app (navegador o Archivos).
    Actívalo solo para esa instalación.
