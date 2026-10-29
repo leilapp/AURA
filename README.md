@@ -9,7 +9,7 @@ las actividades y compromisos de tu hijo. Funciona sin cuenta, sin servidor y si
 
 ## 1. Obtener el APK sin instalar nada (recomendado)
 
-Cada vez que se sube código a GitHub, el flujo **«Compilar APK de Aura»** (GitHub Actions)
+Cada vez que se sube código a `main` o se actualiza un pull request, el flujo **«Compilar APK de Aura»** (GitHub Actions)
 ejecuta las pruebas y genera el APK de depuración en los servidores de GitHub.
 
 1. En GitHub abre la pestaña **Actions** del repositorio.
@@ -143,7 +143,8 @@ La compilación usa el Gradle Wrapper del proyecto (`./gradlew`, Gradle 8.11.1).
 - **El entorno de desarrollo inicial no podía descargar el Android SDK** (la red bloqueaba
   `dl.google.com` y `maven.google.com`). Solución: compilar y probar en GitHub Actions, que
   incluye el SDK, y dejar `scripts/setup-android-sdk.sh` para Codespaces. La lógica pura
-  (`domain/`) se verificó con el compilador de Kotlin y JUnit (17 pruebas).
+  (`domain/`) se verificó con el compilador de Kotlin y JUnit (17 pruebas). La primera
+  compilación completa en GitHub Actions (pruebas + `assembleDebug`) terminó correctamente.
 - **APK de prueba que no se podía actualizar sin perder datos:** cada máquina genera su propia
   clave de depuración. Se incluyó una clave de **depuración** fija (`app/debug.keystore`,
   contraseña pública `android`). No es una clave de producción.

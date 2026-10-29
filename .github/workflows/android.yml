@@ -1,8 +1,9 @@
 name: Compilar APK de Aura
 
 on:
+  # En ramas de trabajo basta con la ejecución del PR; así no se compila dos veces.
   push:
-    branches: ["**"]
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
