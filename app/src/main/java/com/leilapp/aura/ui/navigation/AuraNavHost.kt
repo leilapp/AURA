@@ -11,10 +11,20 @@ import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.outlined.DateRange
+import androidx.compose.material.icons.outlined.Face
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -46,12 +56,13 @@ import com.leilapp.aura.ui.today.TodayActions
 import com.leilapp.aura.ui.today.TodayScreen
 import android.net.Uri
 
-private enum class Tab(val route: String, val label: String, val icon: ImageVector) {
-    TODAY("today", "Mi día", Icons.Filled.Home),
-    AGENDA("agenda", "Agenda", Icons.Filled.DateRange),
-    CHILD("child", "Mi hijo", Icons.Filled.Face),
-    TASKS("tasks", "Tareas", Icons.Filled.CheckCircle),
-    MORE("more", "Más", Icons.Filled.Menu),
+/** Icono relleno cuando la pestaña está activa y de contorno cuando no: misma familia de iconos. */
+private enum class Tab(val route: String, val label: String, val icon: ImageVector, val iconIdle: ImageVector) {
+    TODAY("today", "Mi día", Icons.Filled.Home, Icons.Outlined.Home),
+    AGENDA("agenda", "Agenda", Icons.Filled.DateRange, Icons.Outlined.DateRange),
+    CHILD("child", "Mi hijo", Icons.Filled.Face, Icons.Outlined.Face),
+    TASKS("tasks", "Tareas", Icons.Filled.CheckCircle, Icons.Outlined.CheckCircle),
+    MORE("more", "Más", Icons.Filled.Menu, Icons.Outlined.Menu),
 }
 
 private object Routes {
@@ -88,10 +99,19 @@ fun AuraNavHost(nav: NavHostController = rememberNavController()) {
         containerColor = MaterialTheme.colorScheme.background,
         bottomBar = {
             if (showBar) {
-                NavigationBar(containerColor = MaterialTheme.colorScheme.surfaceContainer) {
+                val divider = MaterialTheme.colorScheme.outlineVariant
+                // Mantiene los insets por defecto: respeta la barra de gestos/botones de Android.
+                NavigationBar(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    tonalElevation = 0.dp,
+                    modifier = Modifier.drawBehind {
+                        drawLine(divider, Offset(0f, 0f), Offset(size.width, 0f), strokeWidth = 1.dp.toPx())
+                    },
+                ) {
                     Tab.entries.forEach { tab ->
+                        val selected = currentRoute == tab.route
                         NavigationBarItem(
-                            selected = currentRoute == tab.route,
+                            selected = selected,
                             onClick = {
                                 nav.navigate(tab.route) {
                                     popUpTo(nav.graph.findStartDestination().id) { saveState = true }
@@ -99,8 +119,21 @@ fun AuraNavHost(nav: NavHostController = rememberNavController()) {
                                     restoreState = true
                                 }
                             },
-                            icon = { Icon(tab.icon, contentDescription = null) },
-                            label = { Text(tab.label) },
+                            icon = { Icon(if (selected) tab.icon else tab.iconIdle, contentDescription = null) },
+                            label = {
+                                Text(
+                                    tab.label,
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
+                                )
+                            },
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = MaterialTheme.colorScheme.primary,
+                                selectedTextColor = MaterialTheme.colorScheme.onSurface,
+                                indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.16f),
+                                unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            ),
                         )
                     }
                 }
@@ -129,6 +162,7 @@ fun AuraNavHost(nav: NavHostController = rememberNavController()) {
                         openRoutines = { nav.navigate(Routes.ROUTINES) },
                         openPayments = { nav.navigate(Routes.PAYMENTS) },
                         openWeather = { nav.navigate(Routes.WEATHER) },
+                        openSettings = { nav.navigate(Routes.SETTINGS) },
                     ),
                 )
             }

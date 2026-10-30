@@ -1,6 +1,8 @@
 package com.leilapp.aura.ui.components
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -23,6 +25,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -100,33 +103,49 @@ fun AuraCard(
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
     containerColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
+    border: BorderStroke? = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+    contentPadding: PaddingValues = PaddingValues(16.dp),
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val colors = CardDefaults.cardColors(containerColor = containerColor)
     val inner: @Composable ColumnScope.() -> Unit = {
-        Column(Modifier.padding(16.dp).animateContentSize(), content = content)
+        Column(Modifier.padding(contentPadding).animateContentSize(), content = content)
     }
     if (onClick != null) {
-        Card(onClick = onClick, modifier = modifier.fillMaxWidth(), shape = MaterialTheme.shapes.large, colors = colors, content = inner)
+        Card(onClick = onClick, modifier = modifier.fillMaxWidth(), shape = MaterialTheme.shapes.large, colors = colors, border = border, content = inner)
     } else {
-        Card(modifier = modifier.fillMaxWidth(), shape = MaterialTheme.shapes.large, colors = colors, content = inner)
+        Card(modifier = modifier.fillMaxWidth(), shape = MaterialTheme.shapes.large, colors = colors, border = border, content = inner)
     }
 }
 
 @Composable
-fun SectionHeader(title: String, modifier: Modifier = Modifier, actionLabel: String? = null, onAction: (() -> Unit)? = null) {
+fun SectionHeader(
+    title: String,
+    modifier: Modifier = Modifier,
+    actionLabel: String? = null,
+    onAction: (() -> Unit)? = null,
+    supporting: String? = null,
+    leading: @Composable (() -> Unit)? = null,
+) {
     Row(
-        modifier = modifier.fillMaxWidth().padding(top = 8.dp, bottom = 4.dp),
+        modifier = modifier.fillMaxWidth().padding(top = 12.dp, bottom = 2.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(
-            title,
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.weight(1f).semantics { heading() },
-        )
+        if (leading != null) {
+            leading()
+            Spacer(Modifier.width(10.dp))
+        }
+        Column(Modifier.weight(1f).semantics { heading() }) {
+            Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
+            if (supporting != null) {
+                Text(supporting, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
         if (actionLabel != null && onAction != null) {
-            TextButton(onClick = onAction) { Text(actionLabel) }
+            TextButton(onClick = onAction, contentPadding = PaddingValues(start = 12.dp, end = 4.dp)) {
+                Text(actionLabel, style = MaterialTheme.typography.labelLarge)
+                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, modifier = Modifier.size(18.dp))
+            }
         }
     }
 }
@@ -139,20 +158,31 @@ fun EmptyState(
     modifier: Modifier = Modifier,
     actionLabel: String? = null,
     onAction: (() -> Unit)? = null,
+    compact: Boolean = false,
+    tint: Color = MaterialTheme.colorScheme.primary,
 ) {
     Column(
-        modifier = modifier.fillMaxWidth().padding(vertical = 32.dp, horizontal = 24.dp),
+        modifier = modifier.fillMaxWidth().padding(vertical = if (compact) 20.dp else 32.dp, horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        // Halo doble: discreto, sin ilustraciones pesadas.
         Box(
-            modifier = Modifier.size(64.dp).background(MaterialTheme.colorScheme.primaryContainer, CircleShape),
+            modifier = Modifier
+                .size(if (compact) 56.dp else 72.dp)
+                .background(tint.copy(alpha = 0.06f), CircleShape)
+                .border(1.dp, tint.copy(alpha = 0.12f), CircleShape),
             contentAlignment = Alignment.Center,
         ) {
-            Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimaryContainer, modifier = Modifier.size(30.dp))
+            Box(
+                Modifier.size(if (compact) 38.dp else 48.dp).background(tint.copy(alpha = 0.14f), CircleShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(if (compact) 20.dp else 24.dp))
+            }
         }
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(if (compact) 12.dp else 16.dp))
         Text(title, style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center)
-        Spacer(Modifier.height(6.dp))
+        Spacer(Modifier.height(4.dp))
         Text(
             message,
             style = MaterialTheme.typography.bodyMedium,
@@ -160,8 +190,8 @@ fun EmptyState(
             textAlign = TextAlign.Center,
         )
         if (actionLabel != null && onAction != null) {
-            Spacer(Modifier.height(12.dp))
-            TextButton(onClick = onAction) { Text(actionLabel) }
+            Spacer(Modifier.height(8.dp))
+            TextButton(onClick = onAction) { Text(actionLabel, color = tint) }
         }
     }
 }
@@ -174,14 +204,14 @@ fun Pill(text: String, color: Color, container: Color, modifier: Modifier = Modi
         color = color,
         modifier = modifier
             .background(container, RoundedCornerShape(50))
-            .padding(horizontal = 10.dp, vertical = 4.dp),
+            .padding(horizontal = 8.dp, vertical = 3.dp),
     )
 }
 
 @Composable
 fun PriorityPill(priority: Int) {
     when (priority) {
-        Priority.HIGH -> Pill("Prioridad alta", AuraColors.Error, Color(0xFF4A2026))
+        Priority.HIGH -> Pill("Prioridad alta", AuraColors.Error, AuraColors.ErrorContainer)
         Priority.LOW -> Pill("Baja", MaterialTheme.colorScheme.onSurfaceVariant, MaterialTheme.colorScheme.surfaceContainerHighest)
         else -> {}
     }
@@ -196,19 +226,20 @@ fun WarningBanner(text: String, modifier: Modifier = Modifier) {
         modifier = modifier
             .fillMaxWidth()
             .background(AuraColors.WarningContainer, MaterialTheme.shapes.medium)
+            .border(1.dp, AuraColors.Warning.copy(alpha = 0.25f), MaterialTheme.shapes.medium)
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(Icons.Filled.Warning, contentDescription = "Advertencia", tint = AuraColors.Warning)
+        Icon(Icons.Filled.Warning, contentDescription = "Advertencia", tint = AuraColors.Warning, modifier = Modifier.size(20.dp))
         Spacer(Modifier.width(10.dp))
-        Text(text, style = MaterialTheme.typography.bodyMedium, color = Color(0xFFFFEBC2))
+        Text(text, style = MaterialTheme.typography.bodyMedium, color = Color(0xFFF8E7C4))
     }
 }
 
 /** Barra lateral de color que distingue visualmente los registros de "Mi hijo". */
 @Composable
 fun AccentStripe(color: Color) {
-    Box(Modifier.width(4.dp).height(40.dp).background(color, RoundedCornerShape(2.dp)))
+    Box(Modifier.width(3.dp).height(36.dp).background(color, RoundedCornerShape(2.dp)))
 }
 
 @Composable
